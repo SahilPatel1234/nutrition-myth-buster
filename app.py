@@ -6,7 +6,7 @@ user_input = st.text_input("Enter a nutrition claim you'd like to verify:")
 
 if user_input:
     result = match_myth(user_input)
-   if result:
+if result:
     st.markdown(f"### ❌ Myth: {result['claim']}")
     st.markdown(f"**✅ Truth:** {result['explanation']}")
     st.markdown(f"[📖 Source]({result['source']})")

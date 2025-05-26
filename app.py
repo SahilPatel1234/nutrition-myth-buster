@@ -1,3 +1,9 @@
+st.set_page_config(
+    page_title="Nutrition Myth Buster",
+    page_icon="🥗",
+    layout="centered"
+)
+
 import streamlit as st
 from utils import match_myth, ask_gpt_about_myth
 

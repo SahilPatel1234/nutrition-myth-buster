@@ -15,3 +15,15 @@ if user_input:
         st.info("🤔 That myth isn't in our database, but let me check it out for you...")
         gpt_answer = ask_gpt_about_myth(user_input)
         st.markdown(f"### 🤖 GPT says:\n{gpt_answer}")
+
+st.markdown("---")
+st.markdown("💡 *Want to help improve this app?*")
+new_myth = st.text_input("Submit a new myth you'd like us to investigate:")
+
+if st.button("Submit Myth"):
+    if new_myth:
+        with open("data/user_submitted_myths.txt", "a") as f:
+            f.write(new_myth + "\n")
+        st.success("✅ Thanks! We’ve received your suggestion.")
+    else:
+        st.warning("Please enter a myth before submitting.")

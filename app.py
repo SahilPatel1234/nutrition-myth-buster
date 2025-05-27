@@ -1,3 +1,10 @@
+st.set_page_config(
+    page_title="Nutrition Myth Buster",
+    page_icon="🥗",
+    layout="centered",
+    initial_sidebar_state="expanded",
+)
+
 import streamlit as st
 import pandas as pd
 import os
@@ -72,12 +79,7 @@ def local_css():
 
 local_css()
 
-st.set_page_config(
-    page_title="Nutrition Myth Buster",
-    page_icon="🥗",
-    layout="centered",
-    initial_sidebar_state="expanded",
-)
+
 
 # Sidebar navigation menu
 st.sidebar.title("🍎 Navigation")

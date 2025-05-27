@@ -3,6 +3,24 @@ import pandas as pd
 import os
 from utils import ask_gpt_about_myth
 
+SUBMISSIONS_CSV = "data/unreviewed_myths.csv"
+
+# Ensure the submissions file exists
+if not os.path.exists(SUBMISSIONS_CSV):
+    pd.DataFrame(columns=["myth", "submitted_by"]).to_csv(SUBMISSIONS_CSV, index=False)
+
+def submit_myth():
+    st.header("📝 Submit a Nutrition Myth")
+    myth = st.text_input("Enter the nutrition myth you'd like to submit:")
+    user = st.text_input("Your name (optional):")
+    if st.button("Submit Myth"):
+        if myth:
+            new_entry = pd.DataFrame([[myth, user]], columns=["myth", "submitted_by"])
+            new_entry.to_csv(SUBMISSIONS_CSV, mode='a', header=False, index=False)
+            st.success("Thank you for your submission! It will be reviewed shortly.")
+        else:
+            st.error("Please enter a myth before submitting.")
+
 VOTES_CSV = "data/votes.csv"
 
 # Initialize or fix empty file

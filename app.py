@@ -162,16 +162,18 @@ page = st.sidebar.radio(
 # -------- Page: Myth Buster --------
 if page == "Myth Buster":
     st.title("🥗 Nutrition Myth Buster")
-    # Show Myth of the Day
-myth, truth = get_myth_of_the_day()
-if myth and truth:
-    with st.expander("🌟 Myth of the Day"):
-        st.markdown(f"**Myth:** {myth}")
-        st.markdown(f"**Truth:** {truth}")
-    st.write(
-        "Enter a nutrition myth you'd like to check and see what AI thinks!"
-    )
 
+    # Myth of the Day
+    myth, truth = get_myth_of_the_day()
+    if myth and truth:
+        with st.container():
+            st.markdown("### 🌟 Myth of the Day")
+            st.markdown(f"**Myth:** {myth}")
+            st.markdown(f"**Truth:** {truth}")
+            st.markdown("---")  # separator
+
+    st.write("Enter a nutrition myth you'd like to check and see what AI thinks!")
+    
     user_input = st.text_input("Nutrition Myth", placeholder="e.g. Carbs make you gain weight")
 
     if user_input:

@@ -4,44 +4,21 @@ import os
 from utils import ask_gpt_about_myth
 
 SUBMISSIONS_CSV = "data/unreviewed_myths.csv"
-
 UNREVIEWED_CSV = "data/unreviewed_myths.csv"
-
-# Ensure unreviewed CSV has proper headers if empty
-if not os.path.exists(UNREVIEWED_CSV) or os.path.getsize(UNREVIEWED_CSV) == 0:
-    pd.DataFrame(columns=["myth", "submitted_by"]).to_csv(UNREVIEWED_CSV, index=False)
-
-
-def submit_myth():
-    st.header("📝 Submit a Nutrition Myth")
-    myth = st.text_input("Enter the nutrition myth you'd like to submit:")
-    user = st.text_input("Your name (optional):")
-    if st.button("Submit Myth"):
-        if myth:
-            new_entry = pd.DataFrame([[myth, user]], columns=["myth", "submitted_by"])
-            new_entry.to_csv(SUBMISSIONS_CSV, mode='a', header=False, index=False)
-            st.success("Thank you for your submission! It will be reviewed shortly.")
-        else:
-            st.error("Please enter a myth before submitting.")
-
 VOTES_CSV = "data/votes.csv"
+MAIN_CSV = "data/nutrition_myths.csv"
 
-# Initialize or fix empty file
-if not os.path.exists(VOTES_CSV) or os.stat(VOTES_CSV).st_size == 0:
-    pd.DataFrame(columns=["myth", "votes"]).to_csv(VOTES_CSV, index=False)
+# Initialize CSVs with headers if missing or empty
+for file, cols in [(UNREVIEWED_CSV, ["myth", "submitted_by"]), 
+                   (VOTES_CSV, ["myth", "votes"]),
+                   (MAIN_CSV, ["claim", "truth"])]:
+    if not os.path.exists(file) or os.path.getsize(file) == 0:
+        pd.DataFrame(columns=cols).to_csv(file, index=False)
 
 st.set_page_config(page_title="Nutrition Myth Buster", page_icon="🥗")
 
-# Load or create data files
-MAIN_CSV = "data/nutrition_myths.csv"
-UNREVIEWED_CSV = "data/unreviewed_myths.csv"
-
-for path in [MAIN_CSV, UNREVIEWED_CSV]:
-    if not os.path.exists(path):
-        pd.DataFrame(columns=["claim", "truth"]).to_csv(path, index=False)
-
-# Tabs
-tab1, tab2 = st.tabs(["Myth Buster", "Admin Review 🔐"])
+# --- Tabs ---
+tab1, tab2 = st.tabs(["🥗 Myth Buster", "🔐 Admin Review"])
 
 # --- Tab 1: Myth Buster ---
 with tab1:
@@ -50,66 +27,69 @@ with tab1:
 
     user_input = st.text_input("Nutrition Myth", placeholder="e.g. Carbs make you gain weight")
 
-if user_input:
-    with st.spinner("Checking myth with AI..."):
-        answer = ask_gpt_about_myth(user_input)
+    if user_input:
+        with st.spinner("Checking myth with AI..."):
+            answer = ask_gpt_about_myth(user_input)
 
-    st.markdown("### 🧠 AI Fact Check:")
-    st.write(answer)
+        st.markdown("### 🧠 AI Fact Check:")
+        st.write(answer)
 
-    # Voting system
-    votes_df = pd.read_csv(VOTES_CSV)
+        # Voting system
+        votes_df = pd.read_csv(VOTES_CSV)
+        match = votes_df[votes_df["myth"] == user_input]
+        current_votes = int(match["votes"].values[0]) if not match.empty else 0
 
-    # Get current votes or init
-    match = votes_df[votes_df["myth"] == user_input]
-    current_votes = int(match["votes"].values[0]) if not match.empty else 0
+        st.markdown(f"**Current Votes:** {current_votes}")
 
-    st.markdown(f"**Current Votes:** {current_votes}")
-    col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
+        if "voted" not in st.session_state:
+            st.session_state.voted = {}
 
-    if "voted" not in st.session_state:
-        st.session_state.voted = {}
+        with col1:
+            if st.button("👍 Upvote"):
+                if not st.session_state.voted.get(user_input):
+                    if match.empty:
+                        new_row = pd.DataFrame([{"myth": user_input, "votes": 1}])
+                        votes_df = pd.concat([votes_df, new_row], ignore_index=True)
+                    else:
+                        votes_df.loc[votes_df["myth"] == user_input, "votes"] += 1
+                    st.session_state.voted[user_input] = True
+                    votes_df.to_csv(VOTES_CSV, index=False)
+                    st.experimental_rerun()
 
-    if col1.button("👍 Upvote"):
-        if not st.session_state.voted.get(user_input):
-            if match.empty:
-                new_row = pd.DataFrame([{"myth": user_input, "votes": 1}])
-                votes_df = pd.concat([votes_df, new_row], ignore_index=True)
-            else:
-                votes_df.loc[votes_df["myth"] == user_input, "votes"] += 1
-            st.session_state.voted[user_input] = True
-            votes_df.to_csv(VOTES_CSV, index=False)
-            st.rerun()
+        with col2:
+            if st.button("👎 Downvote"):
+                if not st.session_state.voted.get(user_input):
+                    if match.empty:
+                        new_row = pd.DataFrame([{"myth": user_input, "votes": -1}])
+                        votes_df = pd.concat([votes_df, new_row], ignore_index=True)
+                    else:
+                        votes_df.loc[votes_df["myth"] == user_input, "votes"] -= 1
+                    st.session_state.voted[user_input] = True
+                    votes_df.to_csv(VOTES_CSV, index=False)
+                    st.experimental_rerun()
 
-    if col2.button("👎 Downvote"):
-        if not st.session_state.voted.get(user_input):
-            if match.empty:
-                new_row = pd.DataFrame([{"myth": user_input, "votes": -1}])
-                votes_df = pd.concat([votes_df, new_row], ignore_index=True)
-            else:
-                votes_df.loc[votes_df["myth"] == user_input, "votes"] -= 1
-            st.session_state.voted[user_input] = True
-            votes_df.to_csv(VOTES_CSV, index=False)
-            st.rerun()
-    st.markdown("---")
+        st.markdown("---")
+
     st.subheader("📩 Submit a New Myth for Review")
-
     with st.form("submit_myth"):
         new_myth = st.text_input("New Myth")
         correction = st.text_area("Correction or Explanation (optional)")
         submitted = st.form_submit_button("Submit")
 
-        if submitted and new_myth:
-            df = pd.read_csv(UNREVIEWED_CSV)
-            df = pd.concat([df, pd.DataFrame([{"claim": new_myth, "truth": correction or "To be reviewed"}])], ignore_index=True)
-            df.to_csv(UNREVIEWED_CSV, index=False)
-            st.success("✅ Your myth has been submitted for review!")
+        if submitted:
+            if new_myth:
+                df = pd.read_csv(UNREVIEWED_CSV)
+                df = pd.concat([df, pd.DataFrame([{"claim": new_myth, "truth": correction or "To be reviewed"}])], ignore_index=True)
+                df.to_csv(UNREVIEWED_CSV, index=False)
+                st.success("✅ Your myth has been submitted for review!")
+            else:
+                st.error("Please enter a myth before submitting.")
 
 # --- Tab 2: Admin Review ---
 with tab2:
     st.header("🔍 Review Submitted Myths")
 
-    # Simple passcode check (can be replaced with full login system)
     password = st.text_input("Enter admin password", type="password")
     if password != "Broncos2006!":
         st.warning("🔒 Enter the correct password to view unreviewed myths.")
@@ -120,21 +100,23 @@ with tab2:
             st.success("🎉 No myths pending review!")
         else:
             for i, row in unreviewed.iterrows():
-                st.markdown(f"**Myth:** {row['claim']}")
-                st.markdown(f"**Correction:** {row['truth']}")
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button(f"✅ Approve {i}", key=f"approve_{i}"):
-                        approved = pd.read_csv(MAIN_CSV)
-                        approved = pd.concat([approved, pd.DataFrame([row])], ignore_index=True)
-                        approved.to_csv(MAIN_CSV, index=False)
-                        unreviewed.drop(index=i, inplace=True)
-                        unreviewed.to_csv(UNREVIEWED_CSV, index=False)
-                        st.success("✅ Myth approved and added.")
-                        st.experimental_rerun()
-                with col2:
-                    if st.button(f"❌ Reject {i}", key=f"reject_{i}"):
-                        unreviewed.drop(index=i, inplace=True)
-                        unreviewed.to_csv(UNREVIEWED_CSV, index=False)
-                        st.warning("❌ Myth rejected.")
-                        st.experimental_rerun()
+                with st.container():
+                    st.markdown(f"**Myth:** {row['claim']}")
+                    st.markdown(f"**Correction:** {row['truth']}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button(f"✅ Approve {i}", key=f"approve_{i}"):
+                            approved = pd.read_csv(MAIN_CSV)
+                            approved = pd.concat([approved, pd.DataFrame([row])], ignore_index=True)
+                            approved.to_csv(MAIN_CSV, index=False)
+                            unreviewed.drop(index=i, inplace=True)
+                            unreviewed.to_csv(UNREVIEWED_CSV, index=False)
+                            st.success("✅ Myth approved and added.")
+                            st.experimental_rerun()
+                    with col2:
+                        if st.button(f"❌ Reject {i}", key=f"reject_{i}"):
+                            unreviewed.drop(index=i, inplace=True)
+                            unreviewed.to_csv(UNREVIEWED_CSV, index=False)
+                            st.warning("❌ Myth rejected.")
+                            st.experimental_rerun()
+                st.markdown("---")

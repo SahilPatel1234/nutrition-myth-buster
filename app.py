@@ -12,7 +12,7 @@ st.markdown(
     <style>
     /* Change sidebar background color */
     [data-testid="stSidebar"] > div:first-child {
-        background-color: #f0a500;  /* Example: warm orange */
+        background-color: #228B22;  /* Example: forest green */
     }
     </style>
     """,

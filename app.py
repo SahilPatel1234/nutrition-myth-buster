@@ -205,10 +205,10 @@ if page == "Myth Buster":
     except Exception as e:
         st.error(f"Error loading myths: {e}")
 
-        # Voting system
-        votes_df = pd.read_csv(VOTES_CSV)
-        match = votes_df[votes_df["myth"] == user_input]
-        current_votes = int(match["votes"].values[0]) if not match.empty else 0
+    # Voting system
+    votes_df = pd.read_csv(VOTES_CSV)
+    match = votes_df[votes_df["myth"] == user_input]
+    current_votes = int(match["votes"].values[0]) if not match.empty else 0
 
 import time
 

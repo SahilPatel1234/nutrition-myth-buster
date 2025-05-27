@@ -241,7 +241,6 @@ with col1:
             animate_votes(current_votes, new_votes)
             st.experimental_rerun()
 
-with col2:
     if st.button("👎 Downvote"):
         if not st.session_state.voted.get(user_input):
             new_votes = current_votes - 1
@@ -255,12 +254,10 @@ with col2:
             animate_votes(current_votes, new_votes)
             st.experimental_rerun()
 
-
+# 👇👇 This must be OUTSIDE the with block
 st.markdown("---")
 
-
 # -------- Page: Submit Myth --------
-
 elif page == "Submit Myth":
     st.title("📩 Submit a New Myth for Review")
 
@@ -288,7 +285,6 @@ elif page == "Submit Myth":
                 st.success("✅ Your myth has been submitted for review!")
             else:
                 st.error("Please enter a myth before submitting.")
-
 # -------- Page: Admin Review --------
 else:
     st.title("🔐 Admin Review Submitted Myths")

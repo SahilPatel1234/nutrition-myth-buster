@@ -28,48 +28,47 @@ with tab1:
 
     user_input = st.text_input("Nutrition Myth", placeholder="e.g. Carbs make you gain weight")
 
-        if user_input:
-        with st.spinner("Checking myth with AI..."):
-            answer = ask_gpt_about_myth(user_input)
+if user_input:
+    with st.spinner("Checking myth with AI..."):
+        answer = ask_gpt_about_myth(user_input)
 
-        st.markdown("### 🧠 AI Fact Check:")
-        st.write(answer)
+    st.markdown("### 🧠 AI Fact Check:")
+    st.write(answer)
 
-        # Voting system
-        votes_df = pd.read_csv(VOTES_CSV)
+    # Voting system
+    votes_df = pd.read_csv(VOTES_CSV)
 
-        # Get current votes or init
-        match = votes_df[votes_df["myth"] == user_input]
-        current_votes = int(match["votes"].values[0]) if not match.empty else 0
+    # Get current votes or init
+    match = votes_df[votes_df["myth"] == user_input]
+    current_votes = int(match["votes"].values[0]) if not match.empty else 0
 
-        st.markdown(f"**Current Votes:** {current_votes}")
-        col1, col2 = st.columns(2)
+    st.markdown(f"**Current Votes:** {current_votes}")
+    col1, col2 = st.columns(2)
 
-        if "voted" not in st.session_state:
-            st.session_state.voted = {}
+    if "voted" not in st.session_state:
+        st.session_state.voted = {}
 
-        if col1.button("👍 Upvote"):
-            if not st.session_state.voted.get(user_input):
-                if match.empty:
-                    new_row = pd.DataFrame([{"myth": user_input, "votes": 1}])
-                    votes_df = pd.concat([votes_df, new_row], ignore_index=True)
-                else:
-                    votes_df.loc[votes_df["myth"] == user_input, "votes"] += 1
-                st.session_state.voted[user_input] = True
-                votes_df.to_csv(VOTES_CSV, index=False)
-                st.rerun()
+    if col1.button("👍 Upvote"):
+        if not st.session_state.voted.get(user_input):
+            if match.empty:
+                new_row = pd.DataFrame([{"myth": user_input, "votes": 1}])
+                votes_df = pd.concat([votes_df, new_row], ignore_index=True)
+            else:
+                votes_df.loc[votes_df["myth"] == user_input, "votes"] += 1
+            st.session_state.voted[user_input] = True
+            votes_df.to_csv(VOTES_CSV, index=False)
+            st.rerun()
 
-        if col2.button("👎 Downvote"):
-            if not st.session_state.voted.get(user_input):
-                if match.empty:
-                    new_row = pd.DataFrame([{"myth": user_input, "votes": -1}])
-                    votes_df = pd.concat([votes_df, new_row], ignore_index=True)
-                else:
-                    votes_df.loc[votes_df["myth"] == user_input, "votes"] -= 1
-                st.session_state.voted[user_input] = True
-                votes_df.to_csv(VOTES_CSV, index=False)
-                st.rerun()
-
+    if col2.button("👎 Downvote"):
+        if not st.session_state.voted.get(user_input):
+            if match.empty:
+                new_row = pd.DataFrame([{"myth": user_input, "votes": -1}])
+                votes_df = pd.concat([votes_df, new_row], ignore_index=True)
+            else:
+                votes_df.loc[votes_df["myth"] == user_input, "votes"] -= 1
+            st.session_state.voted[user_input] = True
+            votes_df.to_csv(VOTES_CSV, index=False)
+            st.rerun()
     st.markdown("---")
     st.subheader("📩 Submit a New Myth for Review")
 

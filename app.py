@@ -1,3 +1,6 @@
+from datetime import date
+import random
+
 import streamlit as st
 st.set_page_config(
     page_title="Nutrition Myth Buster",
@@ -51,6 +54,20 @@ import streamlit as st
 import pandas as pd
 import os
 from utils import ask_gpt_about_myth
+
+from datetime import date
+import random
+
+def get_myth_of_the_day():
+    try:
+        df = pd.read_csv(MAIN_CSV)
+        if df.empty:
+            return None, None
+        random.seed(str(date.today()))
+        row = df.sample(1).iloc[0]
+        return row['claim'], row['truth']
+    except Exception as e:
+        return None, None
 
 # File paths
 SUBMISSIONS_CSV = "data/unreviewed_myths.csv"
@@ -146,6 +163,12 @@ page = st.sidebar.radio(
 # -------- Page: Myth Buster --------
 if page == "Myth Buster":
     st.title("🥗 Nutrition Myth Buster")
+    # Show Myth of the Day
+myth, truth = get_myth_of_the_day()
+if myth and truth:
+    with st.expander("🌟 Myth of the Day"):
+        st.markdown(f"**Myth:** {myth}")
+        st.markdown(f"**Truth:** {truth}")
     st.write(
         "Enter a nutrition myth you'd like to check and see what AI thinks!"
     )

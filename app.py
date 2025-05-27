@@ -210,35 +210,50 @@ if page == "Myth Buster":
         match = votes_df[votes_df["myth"] == user_input]
         current_votes = int(match["votes"].values[0]) if not match.empty else 0
 
-        st.markdown(f"**Current Votes:** {current_votes}")
+       import time
 
-        col1, col2 = st.columns(2)
-        if "voted" not in st.session_state:
-            st.session_state.voted = {}
+# After you get current_votes from votes_df:
 
-        with col1:
-            if st.button("👍 Upvote"):
-                if not st.session_state.voted.get(user_input):
-                    if match.empty:
-                        new_row = pd.DataFrame([{"myth": user_input, "votes": 1}])
-                        votes_df = pd.concat([votes_df, new_row], ignore_index=True)
-                    else:
-                        votes_df.loc[votes_df["myth"] == user_input, "votes"] += 1
-                    st.session_state.voted[user_input] = True
-                    votes_df.to_csv(VOTES_CSV, index=False)
-                    st.experimental_rerun()
+vote_placeholder = st.empty()  # placeholder for animated vote count
+vote_placeholder.markdown(f"**Current Votes:** {current_votes}")
 
-        with col2:
-            if st.button("👎 Downvote"):
-                if not st.session_state.voted.get(user_input):
-                    if match.empty:
-                        new_row = pd.DataFrame([{"myth": user_input, "votes": -1}])
-                        votes_df = pd.concat([votes_df, new_row], ignore_index=True)
-                    else:
-                        votes_df.loc[votes_df["myth"] == user_input, "votes"] -= 1
-                    st.session_state.voted[user_input] = True
-                    votes_df.to_csv(VOTES_CSV, index=False)
-                    st.experimental_rerun()
+col1, col2 = st.columns(2)
+if "voted" not in st.session_state:
+    st.session_state.voted = {}
+
+def animate_votes(start, end):
+    step = 1 if end > start else -1
+    for v in range(start, end + step, step):
+        vote_placeholder.markdown(f"**Current Votes:** {v}")
+        time.sleep(0.05)
+
+with col1:
+    if st.button("👍 Upvote"):
+        if not st.session_state.voted.get(user_input):
+            new_votes = current_votes + 1
+            if match.empty:
+                new_row = pd.DataFrame([{"myth": user_input, "votes": new_votes}])
+                votes_df = pd.concat([votes_df, new_row], ignore_index=True)
+            else:
+                votes_df.loc[votes_df["myth"] == user_input, "votes"] = new_votes
+            votes_df.to_csv(VOTES_CSV, index=False)
+            st.session_state.voted[user_input] = True
+            animate_votes(current_votes, new_votes)
+            st.experimental_rerun()
+
+with col2:
+    if st.button("👎 Downvote"):
+        if not st.session_state.voted.get(user_input):
+            new_votes = current_votes - 1
+            if match.empty:
+                new_row = pd.DataFrame([{"myth": user_input, "votes": new_votes}])
+                votes_df = pd.concat([votes_df, new_row], ignore_index=True)
+            else:
+                votes_df.loc[votes_df["myth"] == user_input, "votes"] = new_votes
+            votes_df.to_csv(VOTES_CSV, index=False)
+            st.session_state.voted[user_input] = True
+            animate_votes(current_votes, new_votes)
+            st.experimental_rerun()
 
         st.markdown("---")
 

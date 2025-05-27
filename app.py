@@ -3,27 +3,95 @@ import pandas as pd
 import os
 from utils import ask_gpt_about_myth
 
+# File paths
 SUBMISSIONS_CSV = "data/unreviewed_myths.csv"
 UNREVIEWED_CSV = "data/unreviewed_myths.csv"
 VOTES_CSV = "data/votes.csv"
 MAIN_CSV = "data/nutrition_myths.csv"
 
-# Initialize CSVs with headers if missing or empty
-for file, cols in [(UNREVIEWED_CSV, ["myth", "submitted_by"]), 
-                   (VOTES_CSV, ["myth", "votes"]),
-                   (MAIN_CSV, ["claim", "truth"])]:
+# Initialize CSV files if missing or empty
+for file, cols in [
+    (UNREVIEWED_CSV, ["claim", "truth"]),
+    (VOTES_CSV, ["myth", "votes"]),
+    (MAIN_CSV, ["claim", "truth"]),
+]:
     if not os.path.exists(file) or os.path.getsize(file) == 0:
         pd.DataFrame(columns=cols).to_csv(file, index=False)
 
-st.set_page_config(page_title="Nutrition Myth Buster", page_icon="🥗")
+# Custom CSS for styling
+def local_css():
+    st.markdown(
+        """
+        <style>
+        /* General */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            color: #222222;
+        }
+        /* Header */
+        .css-1v3fvcr h1 {
+            color: #2e7d32;
+            font-weight: 700;
+        }
+        /* Buttons */
+        button {
+            border-radius: 8px !important;
+            border: none !important;
+            background-color: #43a047 !important;
+            color: white !important;
+            padding: 10px 24px !important;
+            font-weight: 600 !important;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2e7d32 !important;
+            cursor: pointer;
+        }
+        /* Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: #e8f5e9;
+            padding: 20px;
+        }
+        /* Separator */
+        hr {
+            border: none;
+            border-top: 1px solid #c8e6c9;
+            margin: 24px 0;
+        }
+        /* Textarea */
+        textarea {
+            border-radius: 8px !important;
+            border: 1px solid #a5d6a7 !important;
+            padding: 10px !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-# --- Tabs ---
-tab1, tab2 = st.tabs(["🥗 Myth Buster", "🔐 Admin Review"])
+local_css()
 
-# --- Tab 1: Myth Buster ---
-with tab1:
+st.set_page_config(
+    page_title="Nutrition Myth Buster",
+    page_icon="🥗",
+    layout="centered",
+    initial_sidebar_state="expanded",
+)
+
+# Sidebar navigation menu
+st.sidebar.title("🍎 Navigation")
+page = st.sidebar.radio(
+    "Go to",
+    ["Myth Buster", "Submit Myth", "Admin Review"],
+)
+
+# -------- Page: Myth Buster --------
+if page == "Myth Buster":
     st.title("🥗 Nutrition Myth Buster")
-    st.write("Enter a nutrition myth you'd like to check:")
+    st.write(
+        "Enter a nutrition myth you'd like to check and see what AI thinks!"
+    )
 
     user_input = st.text_input("Nutrition Myth", placeholder="e.g. Carbs make you gain weight")
 
@@ -71,24 +139,38 @@ with tab1:
 
         st.markdown("---")
 
-    st.subheader("📩 Submit a New Myth for Review")
-    with st.form("submit_myth"):
-        new_myth = st.text_input("New Myth")
-        correction = st.text_area("Correction or Explanation (optional)")
-        submitted = st.form_submit_button("Submit")
+# -------- Page: Submit Myth --------
+elif page == "Submit Myth":
+    st.title("📩 Submit a New Myth for Review")
+
+    with st.form("submit_myth_form"):
+        new_myth = st.text_input("New Myth", help="Describe the myth you want to submit.")
+        correction = st.text_area(
+            "Correction or Explanation (optional)",
+            help="Add a brief correction or explanation if you want."
+        )
+        submitted = st.form_submit_button("Submit Myth")
 
         if submitted:
             if new_myth:
                 df = pd.read_csv(UNREVIEWED_CSV)
-                df = pd.concat([df, pd.DataFrame([{"claim": new_myth, "truth": correction or "To be reviewed"}])], ignore_index=True)
+                df = pd.concat(
+                    [
+                        df,
+                        pd.DataFrame(
+                            [{"claim": new_myth, "truth": correction or "To be reviewed"}]
+                        ),
+                    ],
+                    ignore_index=True,
+                )
                 df.to_csv(UNREVIEWED_CSV, index=False)
                 st.success("✅ Your myth has been submitted for review!")
             else:
                 st.error("Please enter a myth before submitting.")
 
-# --- Tab 2: Admin Review ---
-with tab2:
-    st.header("🔍 Review Submitted Myths")
+# -------- Page: Admin Review --------
+else:
+    st.title("🔐 Admin Review Submitted Myths")
 
     password = st.text_input("Enter admin password", type="password")
     if password != "Broncos2006!":

@@ -1,4 +1,4 @@
-claim,truth_label,explanation,source
-Carbs make you fat,False,Carbs alone don’t cause weight gain. It’s about total calorie balance.,https://www.health.harvard.edu/staying-healthy/the-right-carb-to-eat
-Sugar causes diabetes,Misleading,"Sugar doesn’t directly cause diabetes, but overconsumption and obesity increase risk.",https://www.cdc.gov/diabetes/basics/diabetes.html
-Detox teas cleanse your body,False,Your liver and kidneys already detox your body. Detox teas aren't necessary.,https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/expert-answers/detox-diets/faq-20058040
+claim,truth
+Spinach is high in iron,Spinach contains iron but not as much as once believed due to a measurement error.
+Eggs are bad for cholesterol,Eggs can raise cholesterol slightly but are safe in moderation for most people.
+Carbs make you fat,Weight gain results from calorie surplus, not carbs alone.

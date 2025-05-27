@@ -5,7 +5,8 @@ from utils import ask_gpt_about_myth
 
 VOTES_CSV = "data/votes.csv"
 
-if not os.path.exists(VOTES_CSV):
+# Initialize or fix empty file
+if not os.path.exists(VOTES_CSV) or os.stat(VOTES_CSV).st_size == 0:
     pd.DataFrame(columns=["myth", "votes"]).to_csv(VOTES_CSV, index=False)
 
 st.set_page_config(page_title="Nutrition Myth Buster", page_icon="🥗")

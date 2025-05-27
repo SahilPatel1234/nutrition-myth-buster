@@ -184,6 +184,27 @@ if page == "Myth Buster":
         st.markdown("### 🧠 AI Fact Check:")
         st.write(answer)
 
+        # 🔎 Search & Filter Section
+    st.markdown("### 🔎 Browse Existing Myths")
+
+    search_query = st.text_input("Search myths", placeholder="e.g. sugar, eggs, keto...")
+
+    try:
+        myths_df = pd.read_csv(MAIN_CSV)
+        if not myths_df.empty:
+            if search_query:
+                filtered = myths_df[myths_df["claim"].str.contains(search_query, case=False, na=False)]
+            else:
+                filtered = myths_df
+
+            for _, row in filtered.iterrows():
+                with st.expander(f"❓ {row['claim']}"):
+                    st.markdown(f"✅ **Truth:** {row['truth']}")
+        else:
+            st.info("No reviewed myths available yet.")
+    except Exception as e:
+        st.error(f"Error loading myths: {e}")
+
         # Voting system
         votes_df = pd.read_csv(VOTES_CSV)
         match = votes_df[votes_df["myth"] == user_input]

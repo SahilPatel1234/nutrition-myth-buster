@@ -260,6 +260,7 @@ st.markdown("---")
 
 
 # -------- Page: Submit Myth --------
+
 elif page == "Submit Myth":
     st.title("📩 Submit a New Myth for Review")
 

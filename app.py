@@ -23,7 +23,6 @@ st.markdown(
 st.sidebar.title("Navigation")
 st.sidebar.write("Sidebar content here")
 
-st.title("Main content")
 
 import streamlit as st
 import pandas as pd

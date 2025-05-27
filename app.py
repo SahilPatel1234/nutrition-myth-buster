@@ -45,6 +45,19 @@ for file, cols in [
     if not os.path.exists(file) or os.path.getsize(file) == 0:
         pd.DataFrame(columns=cols).to_csv(file, index=False)
 
+# Sidebar with top myths
+st.sidebar.title("🔥 Top Myths by Community Votes")
+
+votes_df = pd.read_csv(VOTES_CSV)
+
+if not votes_df.empty:
+    top_myths = votes_df.sort_values(by="votes", ascending=False).head(5)
+    for _, row in top_myths.iterrows():
+        st.sidebar.markdown(f"**{row['myth']}**  \n👍 Votes: {row['votes']}")
+else:
+    st.sidebar.write("No votes yet. Be the first to vote!")
+
+
 # Custom CSS for styling
 def local_css():
     st.markdown(

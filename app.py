@@ -255,8 +255,8 @@ with col2:
             animate_votes(current_votes, new_votes)
             st.experimental_rerun()
 
-
 st.markdown("---")
+
 
 # -------- Page: Submit Myth --------
 elif page == "Submit Myth":

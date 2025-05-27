@@ -6,6 +6,25 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Inject custom CSS to style sidebar background color
+st.markdown(
+    """
+    <style>
+    /* Change sidebar background color */
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #f0a500;  /* Example: warm orange */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Your app code below
+st.sidebar.title("Navigation")
+st.sidebar.write("Sidebar content here")
+
+st.title("Main content")
+
 import streamlit as st
 import pandas as pd
 import os

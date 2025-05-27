@@ -259,7 +259,7 @@ with col2:
 
 
 # -------- Page: Submit Myth --------
-elif page == "Submit Myth":
+    elif page == "Submit Myth":
     st.title("📩 Submit a New Myth for Review")
 
     with st.form("submit_myth_form"):

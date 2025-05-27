@@ -10,14 +10,37 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Change sidebar background color */
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #228B22;  /* Example: forest green */
+    /* Sidebar main background */
+    [data-testid="stSidebar"] {
+        background-color: #16a34a !important;  /* Tailwind green-600 */
+        color: white;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 100vh !important;
+    }
+
+    /* Remove padding/margin from inner sidebar content */
+    [data-testid="stSidebar"] > div {
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 100vh !important;
+    }
+
+    /* Sidebar content text & links */
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+
+    /* Remove any extra padding around sidebar sections */
+    .css-1v3fvcr { 
+        padding: 0 !important; 
+        margin: 0 !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
 
 # Your app code below
 st.sidebar.title("Navigation")

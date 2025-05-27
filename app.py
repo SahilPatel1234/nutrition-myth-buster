@@ -165,6 +165,7 @@ if page == "Myth Buster":
 
     # Myth of the Day
     myth, truth = get_myth_of_the_day()
+    print("Myth of the Day:", myth, truth)
     if myth and truth:
         with st.container():
             st.markdown("### 🌟 Myth of the Day")

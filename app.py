@@ -210,7 +210,7 @@ if page == "Myth Buster":
         match = votes_df[votes_df["myth"] == user_input]
         current_votes = int(match["votes"].values[0]) if not match.empty else 0
 
-       import time
+import time
 
 # After you get current_votes from votes_df:
 

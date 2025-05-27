@@ -5,9 +5,12 @@ from utils import ask_gpt_about_myth
 
 SUBMISSIONS_CSV = "data/unreviewed_myths.csv"
 
-# Ensure the submissions file exists
-if not os.path.exists(SUBMISSIONS_CSV):
-    pd.DataFrame(columns=["myth", "submitted_by"]).to_csv(SUBMISSIONS_CSV, index=False)
+UNREVIEWED_CSV = "data/unreviewed_myths.csv"
+
+# Ensure unreviewed CSV has proper headers if empty
+if not os.path.exists(UNREVIEWED_CSV) or os.path.getsize(UNREVIEWED_CSV) == 0:
+    pd.DataFrame(columns=["myth", "submitted_by"]).to_csv(UNREVIEWED_CSV, index=False)
+
 
 def submit_myth():
     st.header("📝 Submit a Nutrition Myth")
